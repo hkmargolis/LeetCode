@@ -5,19 +5,26 @@ public class Main {
     public static void main(String[] args) {
         //---------------------------------------------------
         boolean isAnagram = validAnagram("rat", "tar");
-        System.out.println("validAnagram(rat, tar): " + isAnagram);
+        System.out.println("validAnagram(rat, tar): " + "Solution: " + isAnagram);
         isAnagram = validAnagram("rat", "cat");
-        System.out.println("validAnagram(rat, cat): " + isAnagram);
+        System.out.println("validAnagram(rat, cat): " + "Solution: " +isAnagram);
         //---------------------------------------------------
-        int[] twoSumSolution = twoSum(new int[]{2,1,5,3}, 4);
-        System.out.println("twoSum({2,1,5,3}, 4): " + "indices [" +  twoSumSolution[0] + ", " + twoSumSolution[1] + "]");
+        int[] twoSum = twoSum(new int[]{2, 1, 5, 3}, 4);
+        System.out.println("twoSum({2,1,5,3}, 4): " + "Solution [" + twoSum[0] + ", " + twoSum[1] + "]");
         //---------------------------------------------------
-        int maxSubArray = maxSubArray(new int[]{-2,1,-3,4,-1,2,1,-5,4});
-        System.out.println("maxSubArray({-2,1,-3,4,-1,2,1,-5,4}) sum: " + maxSubArray);
+        int maxSubArray = maxSubArray(new int[]{-2, 1, -3, 4, -1, 2, 1, -5, 4});
+        System.out.println("maxSubArray({-2,1,-3,4,-1,2,1,-5,4}) Solution: " + maxSubArray);
+        //---------------------------------------------------
+        int[] twoSumSorted = twoSumSorted(new int[]{1, 3, 4, 5, 7, 10, 11}, 9);
+        System.out.println("twoSumSorted({1,3,4,5,7,10,11}, 9): " + "Solution [" + twoSumSorted[0] + ", " + twoSumSorted[1] + "]");
+        //---------------------------------------------------
+        int maxLoot = houseRobber(new int[]{1,2,3,5});
+        System.out.println("houseRobber({1,2,3,1}): " + "Solution: " + maxLoot );
     }
 
     /**
      * method checks to see if two strings are anagrams, meaning they have the same letters in any order
+     *
      * @param s first string
      * @param t second string
      * @return true if valid anagram, else false
@@ -82,6 +89,7 @@ public class Main {
 
     /**
      * method solves two sum problem
+     *
      * @param values an integer array
      * @param target an integer value
      * @return an integer array of two indices
@@ -97,10 +105,10 @@ public class Main {
         //method 2---------------------------------------------------
         //create a hashmap int val: index in int[]
         HashMap<Integer, Integer> vals = new HashMap<>();
-        for(int i = 0; i < values.length; i++) {
-            if(vals.containsKey(target-values[i])) {
-                return new int[]{i, vals.get(target-values[i])};
-            }else{
+        for (int i = 0; i < values.length; i++) {
+            if (vals.containsKey(target - values[i])) {
+                return new int[]{i, vals.get(target - values[i])};
+            } else {
                 vals.put(values[i], i);
             }
         }
@@ -109,6 +117,7 @@ public class Main {
 
     /**
      * method returns sum of max sub array of integers
+     *
      * @param array of integers
      * @return integer sum
      */
@@ -132,15 +141,77 @@ public class Main {
         //"sliding window" problem
         int maxSub = array[0];
         int sum = 0;
-        for(int num : array) {
-            if(sum < 0) {
+        for (int num : array) {
+            if (sum < 0) {
                 sum = 0;
             }
             sum += num;
-            if(maxSub < sum) {
+            if (maxSub < sum) {
                 maxSub = sum;
             }
-        }return maxSub;
+        }
+        return maxSub;
+    }
+
+    /**
+     * method returns indices of integers that add up to target value and meet the following requirements:
+     * Given: values are in ascending order, exactly one solution, cannot use the same index twice.
+     * Requirements
+     * 1. index 1 < index 2
+     * 2. returned answers are not zero based
+     *
+     * @param values
+     * @param target
+     * @return
+     */
+    public static int[] twoSumSorted(int[] values, int target) {
+        //method 1---------------------------------------------------
+        //worst case time complexity: O(n^2) b/c we have to iterate through each pair in values
+
+        //method 2---------------------------------------------------
+        //use 2 pointers, one starts at beginning and one starts at the end
+        //add them, if sum > target, shift right pointer to left to decrease total sum
+        //if new sum < target, shift left point to right to increase total sum
+        //pointers can never cross, only iterate through the list once
+        //time complexity: worst case O(n)
+        int head = 0, tail = values.length - 1;
+        int sum = 0;
+        while (head < tail) {
+            sum = values[head] + values[tail];
+
+            if (sum > target) {
+                tail--;
+            } else if (sum < target) {
+                head++;
+            } else { //sum == target
+                head += 1; //account for answer that are not zero based
+                tail += 1;
+                return new int[]{head, tail};
+            }
+        }
+        return new int[]{};
+    }
+
+    /**
+     * Constraint: two adjacent houses cannot be broken into on the same night or the police will be alerted
+     * Goal: determine the max amount of money you can rob tonight without alerting the police
+     * @param loots amount of money in each house
+     */
+    public static int houseRobber(int[] loots) {
+        //method 1---------------------------------------------------
+        //draw a decision tree and find the recurrence relationships
+        //only need to track the last two routes calculated
+        int route1 = 0, route2 = 0;
+        int tempLoot = 0;
+        int currentLoop = 0;
+        for(int loot : loots) {
+            System.out.println("current loop: " + currentLoop);
+            tempLoot = Math.max(route1+loot, route2);
+            route1 = route2; //moving through the loots array
+            System.out.println("route1: " + route1);
+            route2 = tempLoot;
+            System.out.println("route2: " + route2);
+        }return route2; //max loot from all the houses
     }
 
 }
